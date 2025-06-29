@@ -1,14 +1,22 @@
-import { Button } from "@/components/ui/button"
+import { getQueryClient, trpc } from '@/trpc/server';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { Client } from './Client';
+import { Suspense } from 'react';
 
-
-const Home = () => {
+export default async function Home() {
+  const queryClient = getQueryClient();
+  void queryClient.prefetchQuery(
+    trpc.hello.queryOptions({
+      text: "Atharv"
+    }),
+  );
   return (
-   <div>
-    <Button>
-      Click me
-    </Button>
-   </div>
-  )
-}
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <Suspense fallback={<p>Loading...</p>}>
+        <Client />
+      </Suspense>
 
-export default Home
+
+    </HydrationBoundary>
+  );
+}
